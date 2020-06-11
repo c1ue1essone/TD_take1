@@ -66,9 +66,12 @@ class Towers:
         pass
 
 class Creeps:
+    a = 1
+
     def __init__(self):
         global creeps
         global creeps_Info
+        self.a = 'b'
         #creeps.append(self)
         #creeps_health.append(self)
 
@@ -191,4 +194,5 @@ class Game:
 
 
 if __name__ == "__main__":
+    pygame.display.set_caption('Tower Defense')
     Game()
