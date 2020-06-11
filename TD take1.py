@@ -10,7 +10,6 @@ grid_layout = [[0]*int((grid_size)) for _ in range(int((grid_size - 10)))]
 creep_size = 4
 path = []
 creeps = []
-creeps_Info = []
 speedx = 5
 speedy = 1
 wave_Count = 10
@@ -24,9 +23,6 @@ myfont = pygame.font.SysFont("monospace", 25)
 
 #Colours
 menu_grey = (100, 100, 100)
-level_Grass = (15, 150, 25)
-level_Road = (125, 25, 10)
-
 
 def draw(surf, color, pos): 
     r = pygame.Rect(pos)
@@ -149,7 +145,27 @@ class Creeps:
                 creeps[c] = tuple(t)
                 draw(window, creeps_Blue, creeps[c])"""
 
-class Terran:
+class Terrain:
+    level_Grass = (15, 150, 25)
+    level_Road = (125, 25, 10)
+    road = False
+    location = tuple
+    colour = tuple
+    def __init__(self, path, pos):
+        self.road = path
+        if path == True:
+            self.colour = self.level_Road
+        else:
+            self.colour = self.level_Grass
+        self.location = pos
+        self.set_ground()
+
+    def set_ground(self):
+        pass
+
+    def __del__(self):
+        pass
+"""class Terran:
     def __init__(self):
         self.load_level(1)
 
@@ -195,19 +211,63 @@ class Terran:
         draw(surf, level_Grass, self.position)
     
     def draw_road(self, surf):
-        draw(surf, level_Road, self.position)
+        draw(surf, level_Road, self.position)"""
 
 class Game:
+    
     def __init__(self):
         self.run()
+    
+    def load_level(self, progress):
+        level_file = open("Level_" + str(progress))
+        level = list(level_file.read().replace("\n", ""))[:(grid_size*(grid_size-10))]
+        level_file.close()
+        ground = []
+        global path
+        global spawn
+        global boundary
+
+        #posx = grid_size / screen_width
+        #posy = grid_size / screen_height
+        for i, el in enumerate(level):
+            posx = i%grid_size
+            posy = (i//grid_size)
+            if el == 'R':
+                pos = (posx*10, (posy*10)+100, (screen_width / grid_size)-1, (screen_height / grid_size)-1)
+                ground.append(Terrain(True, pos))
+                path.append(pygame.Rect((posx*10, (posy*10)+100), (10, 10)))
+            elif el == "S":
+                pos = (posx*10, (posy*10)+100, (screen_width / grid_size)-1, (screen_height / grid_size)-1)
+                ground.append(Terrain(True, pos))
+                spawn = (posx*10, (posy*10)+103, creep_size, creep_size)
+                path.append(pygame.Rect((posx*10), (posy*10)+100, 10, 10))
+            elif el == "F":
+                pos = (posx*10, (posy*10)+100, (screen_width / grid_size)-1, (screen_height / grid_size)-1)
+                ground.append(Terrain(True, pos))
+                path.append(pygame.Rect(posx*10, (posy*10)+100, 10, 10))
+            elif el =="B":
+                boundary.append(pygame.Rect((posx*10, (posy*10)+100), ((screen_width / grid_size)-1, (screen_height / grid_size)-1)))
+                pos = (posx*10, (posy*10)+100, (screen_width / grid_size)-1, (screen_height / grid_size)-1)
+                ground.append(Terrain(False, pos))
+            else:
+                pos = (posx*10, (posy*10)+100, (screen_width / grid_size)-1, (screen_height / grid_size)-1)
+                ground.append(Terrain(False, pos))
+
+        return ground
 
     def run(self):
         running = True
         Menus()
-        Terran()
 
         Menus().draw(window)
-        Terran().load_level(1)
+        #Terran().load_level(1)
+        ground = self.load_level(1)
+        for i in range(len(ground)):
+            print(i)
+            pos = ground[i].location
+            colour = ground[i].colour
+            draw(window, colour, pos)
+
         pygame.display.update()
 
         creep1 = Creeps(spawn)        
@@ -221,12 +281,14 @@ class Game:
             
             # Update and clear path
 
-            fps = myfont.render(str(int(clock.get_fps())), 1 , (255, 255, 255), level_Grass)
+            fps = myfont.render(str(int(clock.get_fps())), 1 , (255, 255, 255), (15, 210, 50))
             window.blit(fps, (20, 570))
 
-            
-            for b in range(len(path)):
-                draw(window, level_Road, path[b])
+            #Used for drawing just road without drawing whole screen
+
+            #for b in range(len(path)):
+            #    draw(window, level_Road, path[b])
+
             creep1.update_location()
             draw(window, creep1.creeps_blue, creep1.location)
             pygame.display.update()
