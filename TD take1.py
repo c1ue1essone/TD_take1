@@ -14,6 +14,7 @@ creeps_Info = []
 speedx = 5
 speedy = 1
 wave_Count = 10
+boundary = []
 
 pygame.init()
 window = pygame.display.set_mode((screen_width, screen_height))
@@ -23,8 +24,6 @@ myfont = pygame.font.SysFont("monospace", 25)
 
 #Colours
 menu_grey = (100, 100, 100)
-creeps_Blue = (25, 25, 210)
-creeps_Red = (210, 75, 75)
 level_Grass = (15, 150, 25)
 level_Road = (125, 25, 10)
 
@@ -66,12 +65,47 @@ class Towers:
         pass
 
 class Creeps:
-    a = 1
+    health = int
+    location = tuple
+    creep_type = int
+    creeps_blue = (25, 25, 210)
+    creeps_red = (210, 75, 75)
+    dirx = int
+    diry = int
+    def __init__(self, spawn):
+        self.location = spawn
+        self.health = 10
+        draw(window, self.creeps_blue, self.location)
+        self.dirx = 1
+        self.diry = 0
 
+    def update_location(self):
+        #self.location = pygame.Rect(self.location).move(self.dirx, self.diry)
+        self.location = pygame.Rect(self.location)
+        hit_box = pygame.Rect(self.location).move(self.dirx * 5, self.diry * 5)
+        if hit_box.collidelist(boundary) == -1:
+            self.location = pygame.Rect(self.location).move(self.dirx, self.diry)
+        else:
+            self.change_dir()
+
+    def change_dir(self):
+        
+        if self.dirx == 1:
+            self.diry = 1
+            self.dirx = 0
+        elif self.diry == 1:
+            self.dirx = 1
+            self.diry = 0
+
+
+
+    def __del__(self):
+        pass
+
+"""class Creeps:
     def __init__(self):
         global creeps
         global creeps_Info
-        self.a = 'b'
         #creeps.append(self)
         #creeps_health.append(self)
 
@@ -94,7 +128,6 @@ class Creeps:
     def update_Move():
         for c in range(len(creeps)):
             #turn creeps pos data into Rects
-            print(list(creeps[c]))
             t = list(creeps[c])
             i = list(creeps_Info[c])
             r = pygame.Rect(creeps[c])
@@ -102,7 +135,7 @@ class Creeps:
                 t = list(creeps[c])
                 t[0], t[1] = vector(t[0], t[1], i[0], i[1])
                 creeps[c] = tuple(t)
-                draw(window, creeps_Blue, creeps[c])
+                draw(window, creeps_Blue, creeps[c])"""
 
 class Terran:
     def __init__(self):
@@ -114,6 +147,7 @@ class Terran:
         level_file.close()
         global path
         global spawn
+        global boundary
 
         #posx = grid_size / screen_width
         #posy = grid_size / screen_height
@@ -133,6 +167,10 @@ class Terran:
                 self.position = ((posx*10, (posy*10)+100), ((screen_width / grid_size)-1, (screen_height / grid_size)-1))
                 self.draw_road(window)
                 path.append(pygame.Rect(posx*10, (posy*10)+100, 10, 10))
+            elif el =="B":
+                boundary.append(pygame.Rect((posx*10, (posy*10)+100), ((screen_width / grid_size)-1, (screen_height / grid_size)-1)))
+                self.position = ((posx*10, (posy*10)+100), ((screen_width / grid_size)-1, (screen_height / grid_size)-1))
+                self.draw_grass(window)
             else:
                 self.position = ((posx*10, (posy*10)+100), ((screen_width / grid_size)-1, (screen_height / grid_size)-1))
                 self.draw_grass(window)
@@ -159,9 +197,8 @@ class Game:
         Menus().draw(window)
         Terran().load_level(1)
         pygame.display.update()
-        
-        for w in range(wave_Count):
-            Creeps().spawn_Creep()
+
+        creep1 = Creeps(spawn)        
 
         while running:
 
@@ -178,9 +215,8 @@ class Game:
             
             for b in range(len(path)):
                 draw(window, level_Road, path[b])
-            
-            Creeps.update_Move()
-
+            creep1.update_location()
+            draw(window, creep1.creeps_blue, creep1.location)
             pygame.display.update()
             clock.tick(60)
                     
