@@ -234,17 +234,17 @@ class Game:
             posy = (i//grid_size)
             if el == 'R':
                 pos = (posx*10, (posy*10)+100, (screen_width / grid_size)-1, (screen_height / grid_size)-1)
-                ground.append(Terrain(True, pos))
-                path.append(pygame.Rect((posx*10, (posy*10)+100), (10, 10)))
+                #ground.append(Terrain(True, pos))
+                path.append(Terrain(True, pos))
             elif el == "S":
                 pos = (posx*10, (posy*10)+100, (screen_width / grid_size)-1, (screen_height / grid_size)-1)
-                ground.append(Terrain(True, pos))
+                #ground.append(Terrain(True, pos))
                 spawn = (posx*10, (posy*10)+103, creep_size, creep_size)
-                path.append(pygame.Rect((posx*10), (posy*10)+100, 10, 10))
+                path.append(Terrain(True, pos))
             elif el == "F":
                 pos = (posx*10, (posy*10)+100, (screen_width / grid_size)-1, (screen_height / grid_size)-1)
-                ground.append(Terrain(True, pos))
-                path.append(pygame.Rect(posx*10, (posy*10)+100, 10, 10))
+                #ground.append(Terrain(True, pos))
+                path.append(Terrain(True, pos))
             elif el =="B":
                 boundary.append(pygame.Rect((posx*10, (posy*10)+100), ((screen_width / grid_size)-1, (screen_height / grid_size)-1)))
                 pos = (posx*10, (posy*10)+100, (screen_width / grid_size)-1, (screen_height / grid_size)-1)
@@ -268,6 +268,9 @@ class Game:
             colour = ground[i].colour
             draw(window, colour, pos)
 
+        for i in range(len(path)):
+            draw(window, path[i].colour, path[i].location)
+
         pygame.display.update()
 
         creep1 = Creeps(spawn)        
@@ -288,6 +291,9 @@ class Game:
 
             #for b in range(len(path)):
             #    draw(window, level_Road, path[b])
+
+            for b in range(len(path)):
+                draw(window, path[b].colour, path[b].location)
 
             creep1.update_location()
             draw(window, creep1.creeps_blue, creep1.location)
