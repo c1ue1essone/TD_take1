@@ -89,13 +89,21 @@ class Creeps:
             self.change_dir()
 
     def change_dir(self):
-        
+        hit_box = pygame.Rect(self.location)
         if self.dirx == 1:
-            self.diry = 1
-            self.dirx = 0
-        elif self.diry == 1:
-            self.dirx = 1
-            self.diry = 0
+            test_location = hit_box.move(0, -5)
+            if test_location.collidelist(boundary) == -1:
+                self.diry = -1
+                self.dirx = 0
+            else:
+                self.diry = 1
+                self.dirx = 0   
+        elif self.diry == 1 or self.diry == -1:
+            test_location = hit_box.inflate(5, 0)
+            if test_location.collidelist(boundary) == -1:
+                self.diry = 0
+                self.dirx = 1
+            
 
 
 
