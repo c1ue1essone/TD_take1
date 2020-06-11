@@ -82,16 +82,18 @@ class Creeps:
     def update_location(self):
         #self.location = pygame.Rect(self.location).move(self.dirx, self.diry)
         self.location = pygame.Rect(self.location)
-        hit_box = pygame.Rect(self.location).move(self.dirx * 5, self.diry * 5)
-        if hit_box.collidelist(boundary) == -1:
-            self.location = pygame.Rect(self.location).move(self.dirx, self.diry)
-        else:
+        hit_box = pygame.Rect(self.location).move(self.dirx * 4, self.diry * 4)
+        if hit_box.left <= 0 or hit_box.right >= 600:
+            self.dirx *= -1
+        elif not hit_box.collidelist(boundary) == -1:
             self.change_dir()
+        else:
+            self.location = pygame.Rect(self.location).move(self.dirx, self.diry)
 
     def change_dir(self):
         hit_box = pygame.Rect(self.location)
-        if self.dirx == 1:
-            test_location = hit_box.move(0, -5)
+        if self.dirx == 1 or self.dirx == -1:
+            test_location = hit_box.move(0, -10)
             if test_location.collidelist(boundary) == -1:
                 self.diry = -1
                 self.dirx = 0
@@ -99,11 +101,13 @@ class Creeps:
                 self.diry = 1
                 self.dirx = 0   
         elif self.diry == 1 or self.diry == -1:
-            test_location = hit_box.inflate(5, 0)
+            test_location = hit_box.move(10, 0)
             if test_location.collidelist(boundary) == -1:
                 self.diry = 0
                 self.dirx = 1
-            
+            else:
+                self.diry = 0
+                self.dirx = -1
 
 
 
