@@ -54,10 +54,20 @@ class Menus:
         draw(surf, menu_grey, self.menu)
 
 class Towers:
-    def __init__(self):
-        pass
+    damage = int
+    tower_range = int
+    fire_rate = int
+    location = tuple
+    #tower_type
 
-    def basic_tower(self):
+    def __init__(self, location, damage = 5, tower_range = 5, fire_rate = 1):
+        self.damage = damage
+        self.tower_range = tower_range
+        self.fire_rate = fire_rate
+        self.location = location
+
+
+    def create_tower(self):
         pass
 
 class Creeps:
@@ -110,51 +120,18 @@ class Creeps:
     def __del__(self):
         pass
 
-"""class Creeps:
-    def __init__(self):
-        global creeps
-        global creeps_Info
-        #creeps.append(self)
-        #creeps_health.append(self)
-
-    def basic_creep(self, position):
-        pass
-        #position = pygame.Rect(position)
-        #draw(window, creeps_Blue, position)
-        #print(creeps)
-
-    def hard_creep(self, position):
-        draw(window, creeps_Red, position)
-
-    def movement(self, posx, posy):
-           pass
-    
-    def spawn_Creep(self):
-        creeps.append(spawn)
-        creeps_Info.append((random.randint(5, 10), random.randint(-5, 5)))
-
-    def update_Move():
-        for c in range(len(creeps)):
-            #turn creeps pos data into Rects
-            t = list(creeps[c])
-            i = list(creeps_Info[c])
-            r = pygame.Rect(creeps[c])
-            if not r.collidelist(path) == -1:
-                t = list(creeps[c])
-                t[0], t[1] = vector(t[0], t[1], i[0], i[1])
-                creeps[c] = tuple(t)
-                draw(window, creeps_Blue, creeps[c])"""
-
 class Terrain:
     level_Grass = (15, 150, 25)
     level_Road = (125, 25, 10)
     road = False
+    can_place = True
     location = tuple
     colour = tuple
     def __init__(self, path, pos):
         self.road = path
         if path == True:
             self.colour = self.level_Road
+            self.can_place = True
         else:
             self.colour = self.level_Grass
         self.location = pos
@@ -165,56 +142,13 @@ class Terrain:
 
     def __del__(self):
         pass
-"""class Terran:
-    def __init__(self):
-        self.load_level(1)
 
-    def load_level(self, progress):
-        level_file = open("Level_" + str(progress))
-        level = list(level_file.read().replace("\n", ""))[:(grid_size*(grid_size-10))]
-        level_file.close()
-        global path
-        global spawn
-        global boundary
-
-        #posx = grid_size / screen_width
-        #posy = grid_size / screen_height
-        for i, el in enumerate(level):
-            posx = i%grid_size
-            posy = (i//grid_size)
-            if el == 'R':
-                self.position = ((posx*10, (posy*10)+100), ((screen_width / grid_size)-1, (screen_height / grid_size)-1))
-                self.draw_road(window)
-                path.append(pygame.Rect((posx*10, (posy*10)+100), (10, 10)))
-            elif el == "S":
-                self.position = ((posx*10, (posy*10)+100), ((screen_width / grid_size)-1, (screen_height / grid_size)-1))
-                self.draw_road(window)
-                spawn = (posx*10, (posy*10)+103, creep_size, creep_size)
-                path.append(pygame.Rect((posx*10), (posy*10)+100, 10, 10))
-            elif el == "F":
-                self.position = ((posx*10, (posy*10)+100), ((screen_width / grid_size)-1, (screen_height / grid_size)-1))
-                self.draw_road(window)
-                path.append(pygame.Rect(posx*10, (posy*10)+100, 10, 10))
-            elif el =="B":
-                boundary.append(pygame.Rect((posx*10, (posy*10)+100), ((screen_width / grid_size)-1, (screen_height / grid_size)-1)))
-                self.position = ((posx*10, (posy*10)+100), ((screen_width / grid_size)-1, (screen_height / grid_size)-1))
-                self.draw_grass(window)
-            else:
-                self.position = ((posx*10, (posy*10)+100), ((screen_width / grid_size)-1, (screen_height / grid_size)-1))
-                self.draw_grass(window)
-
-            
-    def ground(self):
-        pass
-
-    def draw_grass(self, surf):
-        draw(surf, level_Grass, self.position)
-    
-    def draw_road(self, surf):
-        draw(surf, level_Road, self.position)"""
 
 class Game:
-    
+    path = []
+    creep = []
+    towers = []
+
     def __init__(self):
         self.run()
     
@@ -223,7 +157,6 @@ class Game:
         level = list(level_file.read().replace("\n", ""))[:(grid_size*(grid_size-10))]
         level_file.close()
         ground = []
-        global path
         global spawn
         global boundary
 
@@ -233,18 +166,18 @@ class Game:
             posx = i%grid_size
             posy = (i//grid_size)
             if el == 'R':
-                pos = (posx*10, (posy*10)+100, (screen_width / grid_size)-1, (screen_height / grid_size)-1)
-                #ground.append(Terrain(True, pos))
-                path.append(Terrain(True, pos))
+                pos = (posx*10, (posy*10)+100, (screen_width / grid_size), (screen_height / grid_size))
+                ground.append(Terrain(True, pos))
+                self.path.append(Terrain(True, pos))
             elif el == "S":
-                pos = (posx*10, (posy*10)+100, (screen_width / grid_size)-1, (screen_height / grid_size)-1)
+                pos = (posx*10, (posy*10)+100, (screen_width / grid_size), (screen_height / grid_size))
                 #ground.append(Terrain(True, pos))
                 spawn = (posx*10, (posy*10)+103, creep_size, creep_size)
-                path.append(Terrain(True, pos))
+                self.path.append(Terrain(True, pos))
             elif el == "F":
-                pos = (posx*10, (posy*10)+100, (screen_width / grid_size)-1, (screen_height / grid_size)-1)
+                pos = (posx*10, (posy*10)+100, (screen_width / grid_size), (screen_height / grid_size))
                 #ground.append(Terrain(True, pos))
-                path.append(Terrain(True, pos))
+                self.path.append(Terrain(True, pos))
             elif el =="B":
                 boundary.append(pygame.Rect((posx*10, (posy*10)+100), ((screen_width / grid_size)-1, (screen_height / grid_size)-1)))
                 pos = (posx*10, (posy*10)+100, (screen_width / grid_size)-1, (screen_height / grid_size)-1)
@@ -257,6 +190,7 @@ class Game:
 
     def run(self):
         running = True
+        path = self.path
         Menus()
 
         Menus().draw(window)
@@ -273,7 +207,7 @@ class Game:
 
         pygame.display.update()
 
-        creep1 = Creeps(spawn)        
+        self.creep.append(Creeps(spawn))        
 
         while running:
 
@@ -281,6 +215,15 @@ class Game:
                 if event.type == pygame.QUIT:
                     running = False
                     sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    # chekc for left button
+                    if event.button == 1:
+                        mouse_pos = pygame.mouse.get_pos()
+                        for p in range(len(ground)):
+                            if pygame.Rect(ground[p].location).collidepoint(mouse_pos):
+                                if ground[p].can_place == True:
+                                    ground[p].colour = (0,0,255)
+                                    draw(window, ground[p].colour, ground[p].location)
             
             # Update and clear path
 
@@ -295,8 +238,8 @@ class Game:
             for b in range(len(path)):
                 draw(window, path[b].colour, path[b].location)
 
-            creep1.update_location()
-            draw(window, creep1.creeps_blue, creep1.location)
+            self.creep[0].update_location()
+            draw(window, self.creep[0].creeps_blue, self.creep[0].location)
             pygame.display.update()
             clock.tick(60)
                     
