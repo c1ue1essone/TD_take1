@@ -1,6 +1,8 @@
 import pygame
 import random
 import sys
+import numpy
+import pathfinder as A
 
 global spawn
 #vars
@@ -148,6 +150,9 @@ class Game:
     path = []
     creep = []
     towers = []
+    road = []
+    col_count = 60
+    row_count = 50
 
     def __init__(self):
         self.run()
@@ -157,6 +162,7 @@ class Game:
         level = list(level_file.read().replace("\n", ""))[:(grid_size*(grid_size-10))]
         level_file.close()
         ground = []
+        #ground = numpy.empty(shape = [self.col_count, self.row_count], dtype = object)
         global spawn
         global boundary
 
@@ -168,15 +174,20 @@ class Game:
             if el == 'R':
                 pos = (posx*10, (posy*10)+100, (screen_width / grid_size), (screen_height / grid_size))
                 ground.append(Terrain(True, pos))
+                self.road.append((posx, posy))
                 self.path.append(Terrain(True, pos))
             elif el == "S":
                 pos = (posx*10, (posy*10)+100, (screen_width / grid_size), (screen_height / grid_size))
-                #ground.append(Terrain(True, pos))
+                ground.append(Terrain(True, pos))
+                self.start = (posx, posy)
+                self.road.append((posx, posy))
                 spawn = (posx*10, (posy*10)+103, creep_size, creep_size)
                 self.path.append(Terrain(True, pos))
             elif el == "F":
                 pos = (posx*10, (posy*10)+100, (screen_width / grid_size), (screen_height / grid_size))
-                #ground.append(Terrain(True, pos))
+                ground.append(Terrain(True, pos))
+                self.end = (posx, posy)
+                self.road.append((posx, posy))
                 self.path.append(Terrain(True, pos))
             elif el =="B":
                 boundary.append(pygame.Rect((posx*10, (posy*10)+100), ((screen_width / grid_size)-1, (screen_height / grid_size)-1)))
@@ -186,6 +197,9 @@ class Game:
                 pos = (posx*10, (posy*10)+100, (screen_width / grid_size)-1, (screen_height / grid_size)-1)
                 ground.append(Terrain(False, pos))
 
+
+        temp = numpy.array(ground)
+        ground = temp.reshape(self.col_count, self.row_count)
         return ground
 
     def run(self):
@@ -196,17 +210,21 @@ class Game:
         Menus().draw(window)
         #Terran().load_level(1)
         ground = self.load_level(1)
-        for i in range(len(ground)):
-            print(i)
-            pos = ground[i].location
-            colour = ground[i].colour
-            draw(window, colour, pos)
+
+        for x in range(self.col_count):
+            for y in range(self.row_count):
+                draw(window, ground[x][y].colour, ground[x][y].location)
 
         for i in range(len(path)):
             draw(window, path[i].colour, path[i].location)
 
         pygame.display.update()
 
+        route = A.AStar()
+        route.init_path(50, 60, self.road, self.start, self.end)
+        print(route.process())
+        
+        
         self.creep.append(Creeps(spawn))        
 
         while running:
@@ -216,7 +234,7 @@ class Game:
                     running = False
                     sys.exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    # chekc for left button
+                    # check for left button
                     if event.button == 1:
                         mouse_pos = pygame.mouse.get_pos()
                         for p in range(len(ground)):
@@ -248,6 +266,7 @@ class Game:
 #Level_file = open("Level_"+str(progress))
 #Level = Level_file.readlines()
 #print(Level)
+
 
 
 
