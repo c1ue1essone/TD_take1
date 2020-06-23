@@ -25,6 +25,10 @@ def draw(surf, color, pos):
     r = pygame.Rect(pos)
     pygame.draw.rect(surf, color, r)
 
+def time():
+    time = pygame.time.get_ticks()
+    return time
+
 def vector(travelx, travely, spx , spy):
     milli = clock.tick()
     seconds = 1/120.
@@ -49,13 +53,13 @@ deer_sprite = []
 for state in range(4):
     for frame in range(4):
         if state == 0:
-            deer_sprite.append(loadImage("Creatures\Rampart\Deer\DeerAttack(Frame " + str(frame + 1) +").png"))
+            deer_sprite.append(loadImage("Creatures\Rampart\Deer\DeerWalk(Frame " + str(frame + 1) +").png"))
         elif state == 1:
             deer_sprite.append(loadImage("Creatures\Rampart\Deer\DeerDeath(Frame " + str(frame + 1) +").png"))
         elif state == 2:
             deer_sprite.append(loadImage("Creatures\Rampart\Deer\DeerHit(Frame " + str(frame + 1) +").png"))
         else:
-            deer_sprite.append(loadImage("Creatures\Rampart\Deer\DeerWalk(Frame " + str(frame + 1) +").png"))
+            deer_sprite.append(loadImage("Creatures\Rampart\Deer\DeerAttack(Frame " + str(frame + 1) +").png"))
 
 
 
@@ -84,7 +88,8 @@ class newSprite(pygame.sprite.Sprite):
         self.scale = 1
     
     def addImage(self, filename):
-        self.images.append(loadImage(filename))
+        #self.images.append(loadImage(filename))
+        self.images.append(filename)
 
     def move(self, xpos, ypos, centre=False):
         if centre:

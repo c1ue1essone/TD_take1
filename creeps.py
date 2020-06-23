@@ -12,8 +12,11 @@ class Creeps:
     creeps_red = (210, 75, 75)
     dirx = int
     diry = int
+    state = 0
     def __init__(self, spawn):
-        self.sprite = newSprite(deer_sprite[8])
+        self.sprite = newSprite(deer_sprite[0])
+        for frames in range(len(deer_sprite) - 1):
+            self.sprite.addImage(deer_sprite[frames + 1])
         self.sprite.move(spawn[0],  spawn[1], True)
         sprite_creeps.add(self.sprite)
         self.location = pygame.Rect(spawn)
@@ -34,7 +37,7 @@ class Creeps:
         self.find_loc(route)
         self.temp_location = self.speedx * self.dirx, self.speedy * self.diry
         self.location = pygame.Rect(self.location).move(self.dirx, self.diry)
-        self.sprite.move(self.location[0],  self.location[1], True)
+        self.sprite.move(self.location[0] + 2,  self.location[1] + 2, True)
 
     def find_dirc(self, route):
         node = int(self.location.center[0] / grid_size), int((self.location.center[1] - menu_height) / grid_size)
@@ -46,13 +49,16 @@ class Creeps:
             self.dirx = -1
         else:
             self.dirx = 1
+            self.sprite.angle = 0
         
         if node[1] == node_dist[1]:
             self.diry = 0
         elif node[1] > node_dist[1]:
             self.diry = -1
+            self.sprite.angle = -90
         else:
             self.diry = 1
+            self.sprite.angle = 90
 
     def find_loc(self, route):
         hit_box = pygame.Rect((route[self.grid_loc][0] * grid_size)+(grid_size/2), (route[self.grid_loc][1] * grid_size) + (menu_height + (grid_size/2)), 1, 1)
@@ -62,12 +68,13 @@ class Creeps:
             else:
                 self.grid_loc += 1
                 self.find_dirc(route[self.grid_loc])
-        """node = int(self.location.center[0] / 10), int((self.location.center[1] - 100) / 10)
-        for i in range(len(route)):
-            node_dist = route[i][0] - 1, route[i][1] - 1
-            if node_dist == node:
-                self.grid_loc = i + 1
-                self.find_dirc(route[self.grid_loc])"""
+
+    def update(self, change = 0):
+        if change == 0:
+            self.state = (self.state + 1)%4
+            self.sprite.changeImage(self.state)
+        else:
+            pass
 
     def __del__(self):
         pass

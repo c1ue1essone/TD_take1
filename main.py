@@ -65,6 +65,8 @@ class Game:
         running = True
         path = self.path
         Menus()
+        frame = 1000
+        tick = 16
 
         Menus().draw(window)
         ground = self.load_level(1)
@@ -113,25 +115,24 @@ class Game:
             #for b in range(len(path)):
             #    draw(window, level_Road, path[b])
 
-            for b in range(len(path)):
-                draw(window, path[b].colour, path[b].location)
+            if time() > tick:
+                tick = time() + 17
+                for b in range(len(path)):
+                    draw(window, path[b].colour, path[b].location)
 
-            if self.minion[0].update_location(route, 10) == "end":
-                del self.minion[0]
-                #you died in the future
-            else:
-                self.minion[0].update_location(route, 10)
+                if self.minion[0].update_location(route, 10) == "end":
+                    del self.minion[0]
+                    #you died in the future
+                else:
+                    self.minion[0].update_location(route, 10)
+
+            if time() > frame:
+                frame = 80 + time()
+                self.minion[0].update()
+
             sprite_creeps.draw(window)
             #draw(window, self.minion[0].creeps_blue, self.minion[0].location)
             pygame.display.update()
-            clock.tick(60)
-                    
-#Level_1 = [[0]*int((screen_width/grid_size)) for _ in range(int((screen_height - 100)/grid_size))]
-#progress = 1
-#Level_file = open("Level_"+str(progress))
-#Level = Level_file.readlines()
-#print(Level)
-
 
 if __name__ == "__main__":
     pygame.display.set_caption('Tower Defense')
