@@ -1,5 +1,5 @@
 import pygame
-from constants import *
+from constants import screen_width, menu_height, draw
 
 class Menus:
     def __init__(self):

@@ -71,7 +71,9 @@ class Game:
 
         for x in range(self.col_count):
             for y in range(self.row_count):
-                draw(window, ground[x][y].colour, ground[x][y].location)
+                pass
+                #draw(window, ground[x][y].colour, ground[x][y].location)
+        sprite_terrain.draw(window)
 
         for i in range(len(path)):
             draw(window, path[i].colour, path[i].location)
@@ -102,6 +104,7 @@ class Game:
             
             # Update and clear path
 
+
             fps = myfont.render(str(int(clock.get_fps())), 1 , (255, 255, 255), (15, 210, 50))
             window.blit(fps, (20, 570))
 
@@ -118,9 +121,10 @@ class Game:
                 #you died in the future
             else:
                 self.minion[0].update_location(route, 10)
-            draw(window, self.minion[0].creeps_blue, self.minion[0].location)
+            sprite_creeps.draw(window)
+            #draw(window, self.minion[0].creeps_blue, self.minion[0].location)
             pygame.display.update()
-            clock.tick(120)
+            clock.tick(60)
                     
 #Level_1 = [[0]*int((screen_width/grid_size)) for _ in range(int((screen_height - 100)/grid_size))]
 #progress = 1

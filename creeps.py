@@ -1,5 +1,5 @@
 import pygame
-from constants import *
+from constants import draw, window, grid_size, menu_height, loadImage, newSprite, deer_sprite, sprite_creeps
 
 class Creeps:
     health = int
@@ -13,9 +13,11 @@ class Creeps:
     dirx = int
     diry = int
     def __init__(self, spawn):
+        self.sprite = newSprite(deer_sprite[8])
+        self.sprite.move(spawn[0],  spawn[1], True)
+        sprite_creeps.add(self.sprite)
         self.location = pygame.Rect(spawn)
         self.health = 10
-        draw(window, self.creeps_blue, self.location)
         self.dirx = 1
         self.diry = 0
 
@@ -32,11 +34,12 @@ class Creeps:
         self.find_loc(route)
         self.temp_location = self.speedx * self.dirx, self.speedy * self.diry
         self.location = pygame.Rect(self.location).move(self.dirx, self.diry)
+        self.sprite.move(self.location[0],  self.location[1], True)
 
     def find_dirc(self, route):
         node = int(self.location.center[0] / grid_size), int((self.location.center[1] - menu_height) / grid_size)
         node_dist = route[0], route[1]
-        print(node[0] - node_dist[0])
+
         if node[0] == node_dist[0]:
             self.dirx = 0
         elif node[0] > node_dist[0]:
