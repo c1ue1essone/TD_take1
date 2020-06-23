@@ -75,28 +75,62 @@ class Towers:
 class Creeps:
     health = int
     location = tuple
+    grid_loc = 1
+    route = int
     creep_type = int
     creeps_blue = (25, 25, 210)
     creeps_red = (210, 75, 75)
     dirx = int
     diry = int
     def __init__(self, spawn):
-        self.location = spawn
+        self.location = pygame.Rect(spawn)
         self.health = 10
         draw(window, self.creeps_blue, self.location)
         self.dirx = 1
         self.diry = 0
 
-    def update_location(self):
-        #self.location = pygame.Rect(self.location).move(self.dirx, self.diry)
-        self.location = pygame.Rect(self.location)
+    def update_location(self, route, grid_size):
+        ### old pathfinding method based on hit boxs and fake barriers
+        """self.location = pygame.Rect(self.location)
         hit_box = pygame.Rect(self.location).move(self.dirx * 4, self.diry * 4)
         if hit_box.left <= 0 or hit_box.right >= 600:
             self.dirx *= -1
         elif not hit_box.collidelist(boundary) == -1:
             self.change_dir()
         else:
-            self.location = pygame.Rect(self.location).move(self.dirx, self.diry)
+            self.location = pygame.Rect(self.location).move(self.dirx, self.diry)"""
+        
+        self.find_dirc(route[self.grid_loc])
+        self.location = pygame.Rect(self.location).move(self.dirx, self.diry)
+
+    def find_dirc(self, route):
+        node = int(self.location.center[0] / 10), int((self.location.center[1] - 100) / 10)
+        node_dist = route[0], route[1]
+        if node[0] == node_dist[0]:
+            self.dirx = 0
+        elif node[0] > node_dist[0]:
+            self.dirx = -1
+        else:
+            self.dirx = 1
+        
+        if node[1] == node_dist[1]:
+            self.diry = 0
+        elif node[1] > node_dist[1]:
+            self.diry = -1
+        else:
+            self.diry = 1
+        
+
+    def find_loc(self, route):
+        """hit_box = pygame.Rect(route[self.grid_loc][0] * 10, (route[self.grid_loc][1] * 10) + 100, 1, 1)
+        if pygame.Rect(self.location).colliderect(hit_box):
+            self.grid_loc += 1"""
+        node = int(self.location.center[0] / 10), int((self.location.center[1] - 100) / 10)
+        for i in range(len(route)):
+            node_dist = route[i][0] - 1, route[i][1] - 1
+            if node_dist == node:
+                self.grid_loc = i + 1
+        self.find_dirc(self.route)
 
     def change_dir(self):
         hit_box = pygame.Rect(self.location)
@@ -117,8 +151,6 @@ class Creeps:
                 self.diry = 0
                 self.dirx = -1
 
-
-
     def __del__(self):
         pass
 
@@ -129,7 +161,8 @@ class Terrain:
     can_place = True
     location = tuple
     colour = tuple
-    def __init__(self, path, pos):
+    grid_loc = tuple
+    def __init__(self, path, pos, grid):
         self.road = path
         if path == True:
             self.colour = self.level_Road
@@ -138,6 +171,7 @@ class Terrain:
             self.colour = self.level_Grass
         self.location = pos
         self.set_ground()
+        self.grid_loc = grid
 
     def set_ground(self):
         pass
@@ -173,29 +207,29 @@ class Game:
             posy = (i//grid_size)
             if el == 'R':
                 pos = (posx*10, (posy*10)+100, (screen_width / grid_size), (screen_height / grid_size))
-                ground.append(Terrain(True, pos))
+                ground.append(Terrain(True, pos, (posx, posy)))
                 self.road.append((posx, posy))
-                self.path.append(Terrain(True, pos))
+                self.path.append(Terrain(True, pos, (posx, posy)))
             elif el == "S":
                 pos = (posx*10, (posy*10)+100, (screen_width / grid_size), (screen_height / grid_size))
-                ground.append(Terrain(True, pos))
+                ground.append(Terrain(True, pos, (posx, posy)))
                 self.start = (posx, posy)
-                self.road.append((posx, posy))
+                self.road.append((posx, posy, (posx, posy)))
                 spawn = (posx*10, (posy*10)+103, creep_size, creep_size)
-                self.path.append(Terrain(True, pos))
+                self.path.append(Terrain(True, pos, (posx, posy)))
             elif el == "F":
                 pos = (posx*10, (posy*10)+100, (screen_width / grid_size), (screen_height / grid_size))
-                ground.append(Terrain(True, pos))
+                ground.append(Terrain(True, pos, (posx, posy)))
                 self.end = (posx, posy)
                 self.road.append((posx, posy))
-                self.path.append(Terrain(True, pos))
+                self.path.append(Terrain(True, pos, (posx, posy)))
             elif el =="B":
                 boundary.append(pygame.Rect((posx*10, (posy*10)+100), ((screen_width / grid_size)-1, (screen_height / grid_size)-1)))
                 pos = (posx*10, (posy*10)+100, (screen_width / grid_size)-1, (screen_height / grid_size)-1)
-                ground.append(Terrain(False, pos))
+                ground.append(Terrain(False, pos, (posx, posy)))
             else:
                 pos = (posx*10, (posy*10)+100, (screen_width / grid_size)-1, (screen_height / grid_size)-1)
-                ground.append(Terrain(False, pos))
+                ground.append(Terrain(False, pos, (posx, posy)))
 
 
         temp = numpy.array(ground)
@@ -220,10 +254,10 @@ class Game:
 
         pygame.display.update()
 
-        route = A.AStar()
-        route.init_path(50, 60, self.road, self.start, self.end)
-        print(route.process())
-        
+        grid = A.AStar()
+        grid.init_path(50, 60, self.road, self.start, self.end)
+        route = grid.process()
+        print(route)
         
         self.creep.append(Creeps(spawn))        
 
@@ -237,11 +271,12 @@ class Game:
                     # check for left button
                     if event.button == 1:
                         mouse_pos = pygame.mouse.get_pos()
-                        for p in range(len(ground)):
-                            if pygame.Rect(ground[p].location).collidepoint(mouse_pos):
-                                if ground[p].can_place == True:
-                                    ground[p].colour = (0,0,255)
-                                    draw(window, ground[p].colour, ground[p].location)
+                        for x in range(self.col_count):
+                            for y in range(self.row_count):
+                                if pygame.Rect(ground[x][y].location).collidepoint(mouse_pos):
+                                    if ground[x][y].can_place == True:
+                                        ground[x][y].colour = (0,0,255)
+                                        draw(window, ground[x][y].colour, ground[x][y].location)
             
             # Update and clear path
 
@@ -256,7 +291,7 @@ class Game:
             for b in range(len(path)):
                 draw(window, path[b].colour, path[b].location)
 
-            self.creep[0].update_location()
+            self.creep[0].update_location(route, 10)
             draw(window, self.creep[0].creeps_blue, self.creep[0].location)
             pygame.display.update()
             clock.tick(60)
