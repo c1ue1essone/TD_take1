@@ -17,6 +17,9 @@ class Cell(object):
         self.h = 0
         self.f = 0
 
+    def __lt__(self, other):
+        return self.f < other.f
+
 class AStar(object):
     def __init__(self):
         self.opened = []
@@ -90,6 +93,7 @@ class AStar(object):
                 self.cells.append(Cell(x, y, reachable))
         self.start = self.get_cell(*start)
         self.end = self.get_cell(*end)
+
 
     def get_heuristic(self, cell):
         """
