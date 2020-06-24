@@ -69,7 +69,7 @@ class Game:
         tick = 16
 
         Menus().draw(window)
-        ground = self.load_level(1)
+        ground = self.load_level(2)
 
         for x in range(self.col_count):
             for y in range(self.row_count):
@@ -112,15 +112,19 @@ class Game:
                 #    draw(window, path[b].colour, path[b].location)
                 sprite_path.draw(window)
 
-                if self.minion[0].update_location(route, 10) == "end":
-                    del self.minion[0]
-                    #you died in the future
-                else:
-                    self.minion[0].update_location(route, 10)
+                for num in range(len(self.minion)):
+                    if self.minion[num]:
+                        if not self.minion[num].alive:
+                            del self.minion[num]
+                            print("end")
+                            #you died in the future
+                        else:
+                            self.minion[num].update_location(route, grid_size)
 
             if time() > frame:
                 frame = 80 + time()
-                self.minion[0].update()
+                for num in range(len(self.minion)):
+                    self.minion[num].update(4)
 
             clock.tick()
             fps = myfont.render(str(int(clock.get_fps())), 1 , (255, 255, 255), (15, 210, 50))

@@ -13,6 +13,7 @@ class Creeps:
     dirx = int
     diry = int
     state = 0
+    alive = True
     def __init__(self, spawn):
         self.sprite = newSprite(deer_sprite[0])
         for frames in range(len(deer_sprite) - 1):
@@ -35,7 +36,7 @@ class Creeps:
         else:
             self.location = pygame.Rect(self.location).move(self.dirx, self.diry)"""
         self.find_loc(route)
-        self.temp_location = self.speedx * self.dirx, self.speedy * self.diry
+        #self.temp_location = self.speedx * self.dirx, self.speedy * self.diry
         self.location = pygame.Rect(self.location).move(self.dirx, self.diry)
         self.sprite.move(self.location[0] + 2,  self.location[1] + 2, True)
 
@@ -64,17 +65,15 @@ class Creeps:
         hit_box = pygame.Rect((route[self.grid_loc][0] * grid_size)+(grid_size/2), (route[self.grid_loc][1] * grid_size) + (menu_height + (grid_size/2)), 1, 1)
         if pygame.Rect(self.location.center[0], self.location.center[1], 1, 1).colliderect(hit_box):
             if self.grid_loc == len(route) - 1:
-                return "end"
+                self.alive = False
             else:
                 self.grid_loc += 1
                 self.find_dirc(route[self.grid_loc])
 
     def update(self, change = 0):
-        if change == 0:
-            self.state = (self.state + 1)%4
-            self.sprite.changeImage(self.state)
-        else:
-            pass
+        self.state = ((self.state + 1)%4 ) + change
+        self.sprite.changeImage(self.state)
 
     def __del__(self):
-        pass
+        sprite_creeps.remove(self.sprite)
+
