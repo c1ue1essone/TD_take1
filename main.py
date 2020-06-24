@@ -108,8 +108,9 @@ class Game:
 
             if time() > tick:
                 tick = time() + 17
-                for b in range(len(path)):
-                    draw(window, path[b].colour, path[b].location)
+                #for b in range(len(path)):
+                #    draw(window, path[b].colour, path[b].location)
+                sprite_path.draw(window)
 
                 if self.minion[0].update_location(route, 10) == "end":
                     del self.minion[0]
@@ -117,15 +118,13 @@ class Game:
                 else:
                     self.minion[0].update_location(route, 10)
 
-                fps = myfont.render(str(int(clock.get_fps())), 1 , (255, 255, 255), (15, 210, 50))
-                print(clock.get_fps())
-                window.blit(fps, (20 , screen_height - 30))
-
             if time() > frame:
                 frame = 80 + time()
                 self.minion[0].update()
 
             clock.tick()
+            fps = myfont.render(str(int(clock.get_fps())), 1 , (255, 255, 255), (15, 210, 50))
+            window.blit(fps, (20 , screen_height - 30))
             sprite_creeps.draw(window)
             #draw(window, self.minion[0].creeps_blue, self.minion[0].location)
             pygame.display.update()

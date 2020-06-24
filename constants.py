@@ -20,6 +20,7 @@ game_dir = os.path.dirname(__file__)
 game_assets = os.path.join(game_dir, "assets")
 sprite_terrain = pygame.sprite.OrderedUpdates()
 sprite_creeps = pygame.sprite.OrderedUpdates()
+sprite_path = pygame.sprite.OrderedUpdates()
 
 def draw(surf, color, pos): 
     r = pygame.Rect(pos)
@@ -49,6 +50,7 @@ def loadImage(fileName, useColorKey=False):
         raise Exception("Failed to load image: " + filePath + " - Incorrect path?")
 
 grass_terrain = loadImage("Terrain\GrassBiome\Animated Tiles\GB-GrassLand-Coast-Animated.png")
+road_terrain = loadImage("Terrain\DirtBiome\Animated Tiles\DB-Rock-Coast-Animated.png")
 deer_sprite = []
 for state in range(4):
     for frame in range(4):
@@ -64,20 +66,32 @@ for state in range(4):
 
 
 class newSprite(pygame.sprite.Sprite):
-    def __init__(self, filename, frames=1):
+    def __init__(self, filename, framesx = 1, framesy = 1):
         pygame.sprite.Sprite.__init__(self)
         self.images = []
         #img  = loadImage(filename)
         img = filename
-        self.originalWidth = img.get_width() // frames # gets number of frames from sheet
-        self.originalHeight = img.get_height()
+        #posx = i%grid_col
+        #posy = (i//grid_col)
+        self.originalWidth = img.get_width() // framesx # gets number of frames from sheet
+        self.originalHeight = img.get_height() //framesy # gets number of frames from sheet
+
         frameSurf = pygame.Surface((self.originalWidth, self.originalHeight), pygame.SRCALPHA, 32)
         x = 0
-        for frameNo in range(frames):
-            frameSurf = pygame.Surface((self.originalWidth, self.originalHeight), pygame.SRCALPHA, 32)
-            frameSurf.blit(img, (x,0))
-            self.images.append(frameSurf.copy())
-            x -= self.originalWidth
+        y = 0
+        for frameNoy in range(framesy):
+            for frameNox in range(framesx):
+                x = -frameNox * self.originalWidth
+                y = -frameNoy * self.originalHeight
+                frameSurf = pygame.Surface((self.originalWidth, self.originalHeight), pygame.SRCALPHA, 32)
+                frameSurf.blit(img, (x, y))
+                self.images.append(frameSurf.copy())
+
+        #for frameNo in range(framessize):
+        #    frameSurf = pygame.Surface((self.originalWidth, self.originalHeight), pygame.SRCALPHA, 32)
+        #    frameSurf.blit(img, (x,0))
+        #    self.images.append(frameSurf.copy())
+        #    x -= self.originalWidth
         self.image = pygame.Surface.copy(self.images[0])
 
         self.currentImage = 0
