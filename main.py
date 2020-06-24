@@ -67,9 +67,10 @@ class Game:
         Menus()
         frame = 1000
         tick = 16
+        spawn_tick = 250
 
         Menus().draw(window)
-        ground = self.load_level(2)
+        ground = self.load_level(3)
 
         for x in range(self.col_count):
             for y in range(self.row_count):
@@ -84,8 +85,7 @@ class Game:
 
         grid = pathfinder.AStar()
         grid.init_path(grid_row, grid_col, self.road, self.start, self.end)
-        route = grid.process()
-        self.minion.append(Creeps(self.spawn))        
+        route = grid.process()      
 
         while running:
 
@@ -116,6 +116,7 @@ class Game:
                     if self.minion[num]:
                         if not self.minion[num].alive:
                             del self.minion[num]
+                            self.minion.remove(self.minion[num])
                             print("end")
                             #you died in the future
                         else:
@@ -125,6 +126,11 @@ class Game:
                 frame = 80 + time()
                 for num in range(len(self.minion)):
                     self.minion[num].update(4)
+
+            if time() > spawn_tick:
+                if wave_Count >= len(self.minion):
+                    self.minion.append(Creeps(self.spawn))
+                    spawn_tick = time() + 500
 
             clock.tick()
             fps = myfont.render(str(int(clock.get_fps())), 1 , (255, 255, 255), (15, 210, 50))
