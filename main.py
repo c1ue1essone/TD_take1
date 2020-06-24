@@ -111,16 +111,23 @@ class Game:
                 #for b in range(len(path)):
                 #    draw(window, path[b].colour, path[b].location)
                 sprite_path.draw(window)
+                kill = []
 
                 for num in range(len(self.minion)):
                     if self.minion[num]:
                         if not self.minion[num].alive:
-                            del self.minion[num]
-                            self.minion.remove(self.minion[num])
-                            print("end")
+                            #del self.minion[num]
+                            #temp = self.minion[num]
+                            #self.minion.pop(self.minion.index(temp))
                             #you died in the future
+                            kill.append(num)
                         else:
                             self.minion[num].update_location(route, grid_size)
+
+                if len(kill) > 0:
+                    for d in range(len(kill)):
+                        del self.minion[kill[d]]
+                    kill = []
 
             if time() > frame:
                 frame = 80 + time()
