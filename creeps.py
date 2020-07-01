@@ -1,5 +1,5 @@
 import pygame
-from constants import draw, window, grid_size, menu_height, loadImage, newSprite, deer_sprite, sprite_creeps
+from constants import draw, window, grid_size, menu_height, loadImage, newSprite, forest_minons, sprite_creeps
 
 class Creeps:
     health = int
@@ -7,17 +7,16 @@ class Creeps:
     grid_loc = 1
     speedx = .5
     speedy = .5
-    creep_type = int
+    creep_type = 0
     creeps_blue = (25, 25, 210)
     creeps_red = (210, 75, 75)
     dirx = int
     diry = int
     state = 0
     alive = True
+    dying_ani = False
     def __init__(self, spawn):
-        self.sprite = newSprite(deer_sprite[0])
-        for frames in range(len(deer_sprite) - 1):
-            self.sprite.addImage(deer_sprite[frames + 1])
+        self.sprite = newSprite(forest_minons, 4, 38)
         self.sprite.move(spawn[0],  spawn[1], True)
         sprite_creeps.add(self.sprite)
         self.location = pygame.Rect(spawn)
@@ -70,10 +69,56 @@ class Creeps:
                 self.grid_loc += 1
                 self.find_dirc(route[self.grid_loc])
 
-    def update(self, change = 0):
-        self.state = ((self.state + 1)%4 ) + change
+    def update(self, change = 0,): 
+        self.state = self.state%4
+        if change == 12 and self.dying_ani == False :
+            self.dying_ani = True
+            self.state = 0
+        
+        if self.dying_ani == True and self.state == 3:
+            return "dead"
+
+        self.state = ((self.state + 1)%4 ) + change + self.creep_type
         self.sprite.changeImage(self.state)
 
     def __del__(self):
         sprite_creeps.remove(self.sprite)
 
+class Pixie(Creeps):
+    def __init__(self, spawn):
+        super().__init__(spawn)
+        self.creep_type = 4
+        self.sprite.changeImage(4)
+
+class Dwarf(Creeps):
+    def __init__(self, spawn):
+        super().__init__(spawn)
+        self.creep_type = 24
+        self.sprite.changeImage(24)
+
+class Satyr(Creeps):
+    def __init__(self, spawn):
+        super().__init__(spawn)
+        self.creep_type = 44
+        self.sprite.changeImage(44)
+
+class Hunter(Creeps):
+    def __init__(self, spawn):
+        super().__init__(spawn)
+        self.creep_type = 64
+        self.sprite.changeImage(64)
+
+class Deer(Creeps):
+    def __init__(self, spawn):
+        super().__init__(spawn)
+        self.creep_type = 84
+        self.sprite.changeImage(84)
+    
+    #def __del__(self):
+    #    pass
+        
+class Druid(Creeps):
+    def __init__(self, spawn):
+        super().__init__(spawn)
+        self.creep_type = 104
+        self.sprite.changeImage(104)

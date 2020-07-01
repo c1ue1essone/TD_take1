@@ -1,8 +1,8 @@
 import pygame
 import os
-from constants import loadImage, newSprite, sprite_terrain, window, grass_terrain, road_terrain, sprite_path
+from constants import loadImage, newSprite, sprite_terrain, window, grass_terrain, road_terrain, sprite_path, background
 
-class Terrain(pygame.sprite.Sprite):
+class Terrain():
     level_Grass = (15, 150, 25)
     level_Road = (125, 25, 10)
     road = False
@@ -18,7 +18,7 @@ class Terrain(pygame.sprite.Sprite):
             self.sprite.changeImage(1)
             self.sprite.move(pos[0], pos[1])
             self.colour = self.level_Road
-            self.can_place = True
+            self.can_place = False
             sprite_path.add(self.sprite)
         else:
             self.sprite = newSprite(grass_terrain, 8, 25)

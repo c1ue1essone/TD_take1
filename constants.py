@@ -13,6 +13,7 @@ grid_row = 50
 grid_layout = [[0]*int(grid_col) for _ in range(int(grid_row))]
 screen_width, screen_height = grid_col * grid_size, (grid_row * grid_size) + menu_height
 window = pygame.display.set_mode((screen_width, screen_height))
+background = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA, 32)
 window.fill((0, 0, 0))
 clock = pygame.time.Clock()
 myfont = pygame.font.SysFont("monospace", 25)
@@ -21,6 +22,7 @@ game_assets = os.path.join(game_dir, "assets")
 sprite_terrain = pygame.sprite.OrderedUpdates()
 sprite_creeps = pygame.sprite.OrderedUpdates()
 sprite_path = pygame.sprite.OrderedUpdates()
+sprite_towers = pygame.sprite.OrderedUpdates()
 
 def draw(surf, color, pos): 
     r = pygame.Rect(pos)
@@ -51,7 +53,9 @@ def loadImage(fileName, useColorKey=False):
 
 grass_terrain = loadImage("Terrain\GrassBiome\Animated Tiles\GB-GrassLand-Coast-Animated.png")
 road_terrain = loadImage("Terrain\DirtBiome\Animated Tiles\DB-Rock-Coast-Animated.png")
-deer_sprite = []
+forest_minons = loadImage("Creatures\Rampart\Rampact(AllFrame).png")
+tower_sprites = loadImage("Towers\Arrow_Tower.png")
+"""deer_sprite = []
 for state in range(4):
     for frame in range(4):
         if state == 0:
@@ -61,7 +65,7 @@ for state in range(4):
         elif state == 2:
             deer_sprite.append(loadImage("Creatures\Rampart\Deer\DeerHit(Frame " + str(frame + 1) +").png"))
         else:
-            deer_sprite.append(loadImage("Creatures\Rampart\Deer\DeerAttack(Frame " + str(frame + 1) +").png"))
+            deer_sprite.append(loadImage("Creatures\Rampart\Deer\DeerAttack(Frame " + str(frame + 1) +").png"))"""
 
 
 
@@ -125,5 +129,3 @@ class newSprite(pygame.sprite.Sprite):
         self.rect.center = oldcenter
         self.mask = pygame.mask.from_surface(self.image)
         
-
-    
