@@ -67,7 +67,7 @@ class Game:
         tick = 16
         spawn_tick = 250
 
-        Menus().draw(window)
+        Menus().draw(screen)
         ground = self.load_level(2)
 
         sprite_terrain.draw(background) # Draws background terrain
@@ -150,7 +150,9 @@ class Game:
             render_sprites.add(sprite_creeps, layer = 3)
 
             clock.tick()
-            render_sprites.draw(window)
+            #render_sprites.draw(window)
+            render_sprites.draw(screen)
+            window.blit((render_to_window(screen)), (0,0))
             fps = myfont.render(str(int(clock.get_fps())), 1 , (255, 255, 255), (15, 210, 50))
             window.blit(fps, (20 , screen_height - 30))
             pygame.display.update()
