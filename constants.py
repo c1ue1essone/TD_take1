@@ -7,13 +7,14 @@ creep_size = 4
 path = []
 wave_Count = 10
 menu_height = 100
-grid_size = 16
-grid_col = 60
-grid_row = 50
+grid_size = 32
+grid_col = 30
+grid_row = 25
 grid_layout = [[0]*int(grid_col) for _ in range(int(grid_row))]
 screen_width, screen_height = grid_col * grid_size, (grid_row * grid_size) + menu_height
 window = pygame.display.set_mode((screen_width, screen_height))
 background = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA, 32)
+moving_sprites = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA, 32)
 window.fill((0, 0, 0))
 clock = pygame.time.Clock()
 myfont = pygame.font.SysFont("monospace", 25)
@@ -103,7 +104,7 @@ class newSprite(pygame.sprite.Sprite):
         self.rect.topleft = (0,0)
         self.mask = pygame.mask.from_surface(self.image)
         self.angle = 0
-        self.scale = 1
+        self.scale = 2
     
     def addImage(self, filename):
         #self.images.append(loadImage(filename))

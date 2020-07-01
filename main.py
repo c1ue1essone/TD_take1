@@ -6,7 +6,6 @@ import pathfinder
 from terrain import Terrain
 from creeps import *
 from towers import Towers
-
 from menus import Menus
 from constants import *
 
@@ -17,18 +16,16 @@ class Game:
     minion = []
     towers = []
     road = [] # Used for A* process
-    col_count = 60
-    row_count = 50
 
     def __init__(self):
         self.run()
     
     def load_level(self, progress):
         level_file = open("Level_" + str(progress))
-        level = list(level_file.read().replace("\n", ""))[:(grid_col*(grid_col-10))]
+        level = list(level_file.read().replace("\n", ""))[:(grid_col*(grid_row))]
         level_file.close()
         ground = []
-        #ground = numpy.empty(shape = [self.col_count, self.row_count], dtype = object)
+        #ground = numpy.empty(shape = [grid_col, grid_row], dtype = object)
 
         #posx = grid_size / screen_width
         #posy = grid_size / screen_height
@@ -59,7 +56,7 @@ class Game:
 
 
         temp = numpy.array(ground)
-        ground = temp.reshape(self.col_count, self.row_count)
+        ground = temp.reshape(grid_col, grid_row)
         return ground
 
     def run(self):
@@ -71,7 +68,7 @@ class Game:
         spawn_tick = 250
 
         Menus().draw(window)
-        ground = self.load_level(1)
+        ground = self.load_level(2)
 
         sprite_terrain.draw(background) # Draws background terrain
         window.blit(background, (0, 0))
@@ -80,7 +77,8 @@ class Game:
 
         grid = pathfinder.AStar()
         grid.init_path(grid_row, grid_col, self.road, self.start, self.end)
-        route = grid.process()      
+        route = grid.process()
+        render_sprites = pygame.sprite.LayeredUpdates(sprite_terrain, sprite_path, layer = 1)
 
         while running:
 
@@ -92,13 +90,13 @@ class Game:
                     # check for left button
                     if event.button == 1:
                         mouse_pos = pygame.mouse.get_pos()
-                        for x in range(self.col_count):
-                            for y in range(self.row_count):
+                        for x in range(grid_col):
+                            for y in range(grid_row):
                                 if pygame.Rect(ground[x][y].location).collidepoint(mouse_pos):
                                     if ground[x][y].can_place == True:
                                         self.towers.append(Towers(ground[x][y].location))
                                         ground[x][y].can_place = False
-                                        #draw(window, ground[x][y].colour, ground[x][y].location)
+                                        render_sprites.add(sprite_towers, layer = 2)
                         for num in range(len(self.minion)):
                             if self.minion[num].sprite.rect.collidepoint(mouse_pos):
                                 self.minion[num].health = 0
@@ -125,9 +123,11 @@ class Game:
                     kill = []
 
                 for num in range(len(self.towers)):
-                    if not self.towers[num].hit_box.collidelist(minion_hitboxs) == -1 and self.towers[num].target == None:
-                        self.towers[num].target = self.minion[num]
-                        print(self.towers[num].target)
+                    current_tower = self.towers[num]
+                    if not current_tower.hit_box.collidelist(minion_hitboxs) == -1 and current_tower.target == None:
+                        current_tower.target = self.minion[num]
+                        print(current_tower.target)
+                    window.blit(current_tower.hit_box_draw, (current_tower.sprite.rect.center[0] - current_tower.tower_range, current_tower.sprite.rect.center[1] - current_tower.tower_range))
 
             if time() > frame: # Update minion animation frames
                 frame = 80 + time()
@@ -143,17 +143,16 @@ class Game:
 
             if time() > spawn_tick:
                 if wave_Count >= len(self.minion):
-                    self.minion.append(Dwarf(self.spawn))
+                    self.minion.append(Deer(self.spawn))
                     spawn_tick = time() + 500
+                #render_sprites.add(sprite_creeps)
+            render_sprites.remove_sprites_of_layer(3)
+            render_sprites.add(sprite_creeps, layer = 3)
 
             clock.tick()
-            sprite_path.draw(window) # Draw path to clear screen
-            sprite_creeps.draw(window) # New Creep Sprite drawing method
-            window.blit(background, (0, 0))
-            sprite_towers.draw(window)
+            render_sprites.draw(window)
             fps = myfont.render(str(int(clock.get_fps())), 1 , (255, 255, 255), (15, 210, 50))
             window.blit(fps, (20 , screen_height - 30))
-            #draw(window, self.minion[0].creeps_blue, self.minion[0].location) #Old sprite drawing method
             pygame.display.update()
 
 if __name__ == "__main__":
