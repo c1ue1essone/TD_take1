@@ -12,8 +12,8 @@ grid_col = 30
 grid_row = 25
 grid_layout = [[0]*int(grid_col) for _ in range(int(grid_row))]
 screen_width, screen_height = grid_col * grid_size, (grid_row * grid_size) + menu_height
-scaleing = 1
-window = pygame.display.set_mode((720, 720))
+scaling = 1
+window = pygame.display.set_mode((720, 720), pygame.RESIZABLE)
 background = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA, 32)
 moving_sprites = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA, 32)
 screen = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA, 32)
@@ -27,9 +27,9 @@ sprite_creeps = pygame.sprite.OrderedUpdates()
 sprite_path = pygame.sprite.OrderedUpdates()
 sprite_towers = pygame.sprite.OrderedUpdates()
 
-def draw(surf, color, pos): 
+def draw(surf, color, pos, outline = 0): 
     r = pygame.Rect(pos)
-    pygame.draw.rect(surf, color, r)
+    pygame.draw.rect(surf, color, r, outline)
 
 def time():
     time = pygame.time.get_ticks()
@@ -135,5 +135,5 @@ class newSprite(pygame.sprite.Sprite):
 def render_to_window(srf):
     height = window.get_height()
     width = window.get_width()
-    return pygame.transform.smoothscale(srf, ((width * scaleing), (height * scaleing)))
+    return pygame.transform.scale(srf, ((width * scaling), (height * scaling)))
             

@@ -1,4 +1,5 @@
 import pygame
+import pygame.gfxdraw
 from constants import tower_sprites, newSprite, sprite_towers, window
 
 class Towers:
@@ -17,14 +18,27 @@ class Towers:
         self.location = location
         self.sprite = newSprite(tower_sprites, 4, 1)
         self.sprite.move(location[0], location[1])
-        self.hit_box_draw = pygame.Surface((tower_range * 2, tower_range * 2), pygame.SRCALPHA, 32)
-        self.hit_box = pygame.draw.circle(self.hit_box_draw, (0, 0, 0), (tower_range, tower_range), tower_range, 1)
-        #self.hit_box = pygame.draw.rect(self.hit_box_draw, (0, 0, 0), ((0, 0), (tower_range*2,tower_range*2)))
+        self.create_hit_box(tower_range)
         sprite_towers.add(self.sprite)
 
     def update(self):
         self.sprite.changeImage(self.state)
         self.state = (self.state + 1) % 4
 
+    def create_hit_box(self, tRange):
+        self.tower_range = pygame.Surface((tRange * 2, tRange *2), pygame.SRCALPHA)
+        pygame.gfxdraw.aacircle(self.tower_range, self.sprite.rect.center[0], self.sprite.rect.center[1], tRange, (0, 0, 0, 255))
+        self.hit_box = Circle(self.tower_range)
+        sprite_towers.add(self.hit_box)
+
+
     def __del__(self):
         sprite_towers.remove(self.sprite)
+
+class Circle(pygame.sprite.Sprite):
+
+    def __init__(self, srf):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = srf
+        self.rect = self.image.get_rect()
+        

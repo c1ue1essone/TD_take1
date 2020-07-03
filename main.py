@@ -62,12 +62,12 @@ class Game:
     def run(self):
         running = True
         path = self.path
-        Menus()
+        tower_menu = Menus()
         frame = 1000
         tick = 16
         spawn_tick = 250
 
-        Menus().draw(screen)
+        tower_menu.draw(screen)
         ground = self.load_level(2)
 
         sprite_terrain.draw(background) # Draws background terrain
@@ -83,23 +83,36 @@ class Game:
         while running:
 
             for event in pygame.event.get():
+                mouse_pos = pygame.mouse.get_pos()
+                ratio_x = (window.get_width() / screen.get_width())
+                ratio_y = (window.get_height() / screen.get_height())
+                mouse_scaled = (mouse_pos[0] / ratio_x, mouse_pos[1] / ratio_y)
                 if event.type == pygame.QUIT:
                     running = False
                     sys.exit(0)
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     # check for left button
                     if event.button == 1:
-                        mouse_pos = pygame.mouse.get_pos()
+                        if tower_menu.basic_tower_button.collidepoint(mouse_scaled):
+                            tower_menu.click(screen, tower_menu.basic_tower_button, True)
                         for x in range(grid_col):
                             for y in range(grid_row):
-                                if pygame.Rect(ground[x][y].location).collidepoint(mouse_pos):
+                                if pygame.Rect(ground[x][y].location).collidepoint(mouse_scaled):
                                     if ground[x][y].can_place == True:
                                         self.towers.append(Towers(ground[x][y].location))
                                         ground[x][y].can_place = False
                                         render_sprites.add(sprite_towers, layer = 2)
                         for num in range(len(self.minion)):
-                            if self.minion[num].sprite.rect.collidepoint(mouse_pos):
+                            if self.minion[num].sprite.rect.collidepoint(mouse_scaled):
                                 self.minion[num].health = 0
+                if event.type == pygame.MOUSEBUTTONUP:
+                    if event.button == 1:
+                        if tower_menu.state:
+                            tower_menu.click(screen, tower_menu.basic_tower_button, False)
+                if tower_menu.basic_tower_button.collidepoint(mouse_scaled) and not tower_menu.over:
+                    tower_menu.hover(screen, tower_menu.basic_tower_button)
+                elif tower_menu.over and not tower_menu.basic_tower_button.collidepoint(mouse_scaled):
+                    tower_menu.hover_off(screen, tower_menu.basic_tower_button)
             
             # Update and clear path
 
@@ -124,10 +137,14 @@ class Game:
 
                 for num in range(len(self.towers)):
                     current_tower = self.towers[num]
-                    if not current_tower.hit_box.collidelist(minion_hitboxs) == -1 and current_tower.target == None:
+                    if not current_tower.hit_box.rect.collidelist(minion_hitboxs) == -1 and current_tower.target == None:
                         current_tower.target = self.minion[num]
                         print(current_tower.target)
-                    window.blit(current_tower.hit_box_draw, (current_tower.sprite.rect.center[0] - current_tower.tower_range, current_tower.sprite.rect.center[1] - current_tower.tower_range))
+                    #window.blit(current_tower.hit_box_draw, (current_tower.sprite.rect.center[0] - current_tower.tower_range, current_tower.sprite.rect.center[1] - current_tower.tower_range))
+                #Clears then render sprites to display
+                render_sprites.remove_sprites_of_layer(3)
+                render_sprites.add(sprite_creeps, layer = 3)
+                screen.convert()
 
             if time() > frame: # Update minion animation frames
                 frame = 80 + time()
@@ -146,15 +163,14 @@ class Game:
                     self.minion.append(Deer(self.spawn))
                     spawn_tick = time() + 500
                 #render_sprites.add(sprite_creeps)
-            render_sprites.remove_sprites_of_layer(3)
-            render_sprites.add(sprite_creeps, layer = 3)
 
             clock.tick()
-            #render_sprites.draw(window)
             render_sprites.draw(screen)
-            window.blit((render_to_window(screen)), (0,0))
+            for num in range(len(self.towers)):
+                screen.blit(self.towers[num].tower_range, (self.towers[num].sprite.rect.center))
             fps = myfont.render(str(int(clock.get_fps())), 1 , (255, 255, 255), (15, 210, 50))
-            window.blit(fps, (20 , screen_height - 30))
+            screen.blit(fps, (20 , screen_height - 30))
+            window.blit((render_to_window(screen)), (0,0))
             pygame.display.update()
 
 if __name__ == "__main__":
