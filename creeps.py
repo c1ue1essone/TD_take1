@@ -1,5 +1,5 @@
-import pygame
-from constants import draw, window, grid_size, menu_height, loadImage, newSprite, forest_minons, sprite_creeps
+#import pygame
+from constants import grid_size, menu_height, newSprite, forest_minons, sprite_creeps, pygame
 
 class Creeps:
     health = int
@@ -16,15 +16,15 @@ class Creeps:
     alive = True
     dying_ani = False
     def __init__(self, spawn):
-        self.sprite = newSprite(forest_minons, 4, 38)
-        self.sprite.move(spawn[0],  spawn[1], True)
+        self.sprite = newSprite(forest_minons)
+        self.sprite.move(spawn[0], spawn[1], True)
         sprite_creeps.add(self.sprite)
         self.location = pygame.Rect(spawn)
         self.health = 10
         self.dirx = 1
         self.diry = 0
 
-    def update_location(self, route, grid_size):
+    def update_location(self, route):
         ### old pathfinding method based on hit boxs and fake barriers
         """self.location = pygame.Rect(self.location)
         hit_box = pygame.Rect(self.location).move(self.dirx * 4, self.diry * 4)
@@ -35,9 +35,8 @@ class Creeps:
         else:
             self.location = pygame.Rect(self.location).move(self.dirx, self.diry)"""
         self.find_loc(route)
-        #self.temp_location = self.speedx * self.dirx, self.speedy * self.diry
         self.location = pygame.Rect(self.location).move(self.dirx, self.diry)
-        self.sprite.move(self.location[0] + 2,  self.location[1] + 2, True)
+        self.sprite.move(self.location[0] + 2, self.location[1] + 2, True)
 
     def find_dirc(self, route):
         node = int(self.location.center[0] / grid_size), int((self.location.center[1] - menu_height) / grid_size)
@@ -50,7 +49,7 @@ class Creeps:
         else:
             self.dirx = 1
             self.sprite.angle = 0
-        
+
         if node[1] == node_dist[1]:
             self.diry = 0
         elif node[1] > node_dist[1]:
@@ -69,16 +68,16 @@ class Creeps:
                 self.grid_loc += 1
                 self.find_dirc(route[self.grid_loc])
 
-    def update(self, change = 0,): 
+    def update(self, change=0,):
         self.state = self.state%4
-        if change == 12 and self.dying_ani == False :
+        if change == 12 and not self.dying_ani:
             self.dying_ani = True
             self.state = 0
-        
-        if self.dying_ani == True and self.state == 3:
+
+        if self.dying_ani and self.state == 3:
             return "dead"
 
-        self.state = ((self.state + 1)%4 ) + change + self.creep_type
+        self.state = ((self.state + 1) % 4) + change + self.creep_type
         self.sprite.changeImage(self.state)
 
     def __del__(self):
@@ -95,6 +94,7 @@ class Dwarf(Creeps):
         super().__init__(spawn)
         self.creep_type = 24
         self.sprite.changeImage(24)
+        self.health = 60
 
 class Satyr(Creeps):
     def __init__(self, spawn):
@@ -113,10 +113,8 @@ class Deer(Creeps):
         super().__init__(spawn)
         self.creep_type = 84
         self.sprite.changeImage(84)
-    
-    #def __del__(self):
-    #    pass
-        
+        self.health = 120
+
 class Druid(Creeps):
     def __init__(self, spawn):
         super().__init__(spawn)

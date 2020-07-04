@@ -1,3 +1,4 @@
+# pylint: disable = invalid-name
 import os
 import pygame
 
@@ -23,6 +24,7 @@ myfont = pygame.font.SysFont("monospace", 25)
 game_dir = os.path.dirname(__file__)
 game_assets = os.path.join(game_dir, "assets")
 sprite_terrain = pygame.sprite.OrderedUpdates()
+sprite_menu = pygame.sprite.OrderedUpdates()
 sprite_creeps = pygame.sprite.OrderedUpdates()
 sprite_path = pygame.sprite.OrderedUpdates()
 sprite_towers = pygame.sprite.OrderedUpdates()
@@ -32,11 +34,11 @@ def draw(surf, color, pos, outline = 0):
     pygame.draw.rect(surf, color, r, outline)
 
 def time():
-    time = pygame.time.get_ticks()
-    return time
+    milli = pygame.time.get_ticks()
+    return milli
 
 def vector(travelx, travely, spx , spy):
-    milli = clock.tick()
+    #milli = clock.tick()
     seconds = 1/120.
     dmx = seconds * spx
     dmy = seconds * spy
@@ -45,7 +47,8 @@ def vector(travelx, travely, spx , spy):
     print("vector")
     return x, y
 
-def loadImage(fileName, useColorKey=False):
+#def loadImage(fileName, useColorKey=False): # old fuction call containinh color keying
+def loadImage(fileName):
     filePath = os.path.join(game_assets, fileName)
     if os.path.isfile(filePath):
         image = pygame.image.load(filePath)
@@ -54,34 +57,25 @@ def loadImage(fileName, useColorKey=False):
     else:
         raise Exception("Failed to load image: " + filePath + " - Incorrect path?")
 
-grass_terrain = loadImage("Terrain\GrassBiome\Animated Tiles\GB-GrassLand-Coast-Animated.png")
-road_terrain = loadImage("Terrain\DirtBiome\Animated Tiles\DB-Rock-Coast-Animated.png")
-forest_minons = loadImage("Creatures\Rampart\Rampact(AllFrame).png")
-tower_sprites = loadImage("Towers\Arrow_Tower.png")
-"""deer_sprite = []
-for state in range(4):
-    for frame in range(4):
-        if state == 0:
-            deer_sprite.append(loadImage("Creatures\Rampart\Deer\DeerWalk(Frame " + str(frame + 1) +").png"))
-        elif state == 1:
-            deer_sprite.append(loadImage("Creatures\Rampart\Deer\DeerDeath(Frame " + str(frame + 1) +").png"))
-        elif state == 2:
-            deer_sprite.append(loadImage("Creatures\Rampart\Deer\DeerHit(Frame " + str(frame + 1) +").png"))
-        else:
-            deer_sprite.append(loadImage("Creatures\Rampart\Deer\DeerAttack(Frame " + str(frame + 1) +").png"))"""
-
-
+grass_terrain = loadImage("Terrain/GrassBiome/Animated Tiles/GB-GrassLand-Coast-Animated.png")
+road_terrain = loadImage("Terrain/DirtBiome/Animated Tiles/DB-Rock-Coast-Animated.png")
+forest_minons = loadImage("Creatures/Rampart/Rampact(AllFrame).png")
+tower_sprites = loadImage("Towers/Towers.png")
 
 class newSprite(pygame.sprite.Sprite):
-    def __init__(self, filename, framesx = 1, framesy = 1):
+    def __init__(self, filename, frame_size=16):
         pygame.sprite.Sprite.__init__(self)
         self.images = []
         #img  = loadImage(filename)
         img = filename
         #posx = i%grid_col
         #posy = (i//grid_col)
-        self.originalWidth = img.get_width() // framesx # gets number of frames from sheet
-        self.originalHeight = img.get_height() //framesy # gets number of frames from sheet
+        framesx = img.get_width() // frame_size
+        framesy = img.get_height() // frame_size
+        self.originalHeight = frame_size
+        self.originalWidth = frame_size
+        #self.originalWidth = img.get_width() // framesx # gets number of frames from sheet
+        #self.originalHeight = img.get_height() // framesy # gets number of frames from sheet
 
         frameSurf = pygame.Surface((self.originalWidth, self.originalHeight), pygame.SRCALPHA, 32)
         x = 0

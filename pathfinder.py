@@ -1,4 +1,5 @@
-import heapq
+# pylint: disable = invalid-name
+import heapq 
 
 class Cell(object):
     def __init__(self, x, y, reachable):
@@ -107,7 +108,7 @@ class AStar(object):
     def process(self):
         #add starting cell to open heap queue
         heapq.heappush(self.opened, (self.start.f, self.start))
-        while len(self.opened):
+        while len(self.opened) > 0:
             #pop cell from heap queue
             f, cell = heapq.heappop(self.opened)
             #add cell to closed list so isn't processed twice

@@ -1,13 +1,13 @@
 import sys
-import pygame
+#import pygame
 import random
 import numpy
 import pathfinder
 from terrain import Terrain
-from creeps import *
+from creeps import Pixie, Satyr, Dwarf, Deer, Druid, Hunter
 from towers import Towers
 from menus import Menus
-from constants import *
+from constants import pygame, grid_col, grid_row, grid_size, menu_height, screen_height, screen_width, screen, window, sprite_terrain, background, sprite_path, sprite_towers, time, sprite_creeps, wave_Count, clock, myfont, render_to_window
 
 pygame.init()
 
@@ -19,6 +19,9 @@ class Game:
 
     def __init__(self):
         self.run()
+        self.spawn = tuple
+        self.start = tuple
+        self.end = tuple
     
     def load_level(self, progress):
         level_file = open("Level_" + str(progress))
@@ -61,11 +64,12 @@ class Game:
 
     def run(self):
         running = True
-        path = self.path
         tower_menu = Menus()
         frame = 1000
         tick = 16
         spawn_tick = 250
+        
+        #proof = Towers((5, 5))
 
         tower_menu.draw(screen)
         ground = self.load_level(2)
@@ -78,7 +82,7 @@ class Game:
         grid = pathfinder.AStar()
         grid.init_path(grid_row, grid_col, self.road, self.start, self.end)
         route = grid.process()
-        render_sprites = pygame.sprite.LayeredUpdates(sprite_terrain, sprite_path, layer = 1)
+        render_sprites = pygame.sprite.LayeredUpdates(sprite_terrain, sprite_path, layer=1)
 
         while running:
 
@@ -93,32 +97,31 @@ class Game:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     # check for left button
                     if event.button == 1:
-                        if tower_menu.basic_tower_button.collidepoint(mouse_scaled):
-                            tower_menu.click(screen, tower_menu.basic_tower_button, True)
+                    #    if tower_menu.basic_tower_button.collidepoint(mouse_scaled):
+                    #         tower_menu.click(screen, tower_menu.basic_tower_button, True)
+                    #     elif tower_menu.ice_tower_button.collidepoint(mouse_scaled):
+                    #         tower_menu.click(screen, tower_menu.ice_tower_button, True)
                         for x in range(grid_col):
                             for y in range(grid_row):
                                 if pygame.Rect(ground[x][y].location).collidepoint(mouse_scaled):
-                                    if ground[x][y].can_place == True:
+                                    if ground[x][y].can_place:
                                         self.towers.append(Towers(ground[x][y].location))
                                         ground[x][y].can_place = False
-                                        render_sprites.add(sprite_towers, layer = 2)
+                                        render_sprites.add(sprite_towers, layer=2)
                         for num in range(len(self.minion)):
                             if self.minion[num].sprite.rect.collidepoint(mouse_scaled):
                                 self.minion[num].health = 0
-                if event.type == pygame.MOUSEBUTTONUP:
-                    if event.button == 1:
-                        if tower_menu.state:
-                            tower_menu.click(screen, tower_menu.basic_tower_button, False)
-                if tower_menu.basic_tower_button.collidepoint(mouse_scaled) and not tower_menu.over:
-                    tower_menu.hover(screen, tower_menu.basic_tower_button)
-                elif tower_menu.over and not tower_menu.basic_tower_button.collidepoint(mouse_scaled):
-                    tower_menu.hover_off(screen, tower_menu.basic_tower_button)
-            
-            # Update and clear path
+                # if event.type == pygame.MOUSEBUTTONUP:
+                #     if event.button == 1:
+                #         # if tower_menu.state:
+                #         #     tower_menu.click(screen, tower_menu.basic_tower_button, False)
+                # # if tower_menu.basic_tower_button.collidepoint(mouse_scaled) and not tower_menu.over:
+                # #     tower_menu.hover(screen, tower_menu.basic_tower_button)
+                # # elif tower_menu.over and not tower_menu.basic_tower_button.collidepoint(mouse_scaled):
+                # #     tower_menu.hover_off(screen, tower_menu.basic_tower_button)
 
             if time() > tick:
                 tick = time() + 17
-                #sprite_path.draw(window)
                 kill = []
                 minion_hitboxs = []
 
@@ -127,7 +130,7 @@ class Game:
                         if not self.minion[num].alive:
                             kill.append(num)
                         elif self.minion[num].health > 0:
-                            self.minion[num].update_location(route, grid_size)
+                            self.minion[num].update_location(route)
                             minion_hitboxs.append(self.minion[num].sprite.rect)
 
                 if len(kill) > 0: # If there are minions to kill in the list this del them
@@ -137,14 +140,16 @@ class Game:
 
                 for num in range(len(self.towers)):
                     current_tower = self.towers[num]
-                    if not current_tower.hit_box.rect.collidelist(minion_hitboxs) == -1 and current_tower.target == None:
-                        current_tower.target = self.minion[num]
-                        print(current_tower.target)
-                    #window.blit(current_tower.hit_box_draw, (current_tower.sprite.rect.center[0] - current_tower.tower_range, current_tower.sprite.rect.center[1] - current_tower.tower_range))
+                    collision_index = current_tower.hit_box.rect.collidelist(minion_hitboxs)
+                    if not collision_index == -1 and current_tower.target == None:
+                        current_tower.target = collision_index
+                    elif not current_tower.target == collision_index:
+                        current_tower.target = None
+                    if not current_tower.target == None:
+                        self.minion[current_tower.target].health -= current_tower.damage
                 #Clears then render sprites to display
                 render_sprites.remove_sprites_of_layer(3)
-                render_sprites.add(sprite_creeps, layer = 3)
-                screen.convert()
+                render_sprites.add(sprite_creeps, layer=3)
 
             if time() > frame: # Update minion animation frames
                 frame = 80 + time()
@@ -160,17 +165,24 @@ class Game:
 
             if time() > spawn_tick:
                 if wave_Count >= len(self.minion):
-                    self.minion.append(Deer(self.spawn))
+                    spawn_type = random.choice([Dwarf, Deer, Satyr, Hunter, Druid, Pixie])
+                    #spawn_type = [Dwarf, Deer, Satyr, Hunter, Druid, Pixie]
+                    self.minion.append(spawn_type(self.spawn))
                     spawn_tick = time() + 500
+                render_sprites.add(sprite_creeps, layer = 3)
+
+                #if wave_Count >= len(self.minion):
+                #    self.minion.append(Deer(self.spawn))
+                #    spawn_tick = time() + 500
                 #render_sprites.add(sprite_creeps)
 
             clock.tick()
             render_sprites.draw(screen)
-            for num in range(len(self.towers)):
-                screen.blit(self.towers[num].tower_range, (self.towers[num].sprite.rect.center))
-            fps = myfont.render(str(int(clock.get_fps())), 1 , (255, 255, 255), (15, 210, 50))
-            screen.blit(fps, (20 , screen_height - 30))
-            window.blit((render_to_window(screen)), (0,0))
+            #for num in range(len(self.towers)):
+            #    screen.blit(self.towers[num].hit_box.image, (self.towers[num].sprite.rect.center))
+            fps = myfont.render(str(int(clock.get_fps())), 1, (255, 255, 255), (15, 210, 50))
+            screen.blit(fps, (20, screen_height - 30))
+            window.blit((render_to_window(screen)), (0, 0))
             pygame.display.update()
 
 if __name__ == "__main__":
